@@ -22,6 +22,11 @@ def union(au, bu, area_intersection):
     :param area_intersection:the area where two rectangles intersect.
     :return:area_union:area of two rectangular phases
     '''
+    au_check = check_rectangle(au)
+    bu_check = check_rectangle(bu)
+    if au_check == False or bu_check == False:
+        raise ('Error:The coordinates of the upper left point are '
+               'not less than the coordinates of the lower right point')
     area_a = (au[2] - au[0]) * (au[3] - au[1])
     area_b = (bu[2] - bu[0]) * (bu[3] - bu[1])
     area_union = area_a + area_b - area_intersection
@@ -33,9 +38,14 @@ def intersection(ai, bi):
     Find the area where two rectangles intersect.
     Horizontal x axis and vertical y axis.
     :param ai:(x1,y1,x2,y2):(x1,y1)is top_left_point,(x2,y2)is right_lower_point
-    :param bi:(x1,y1,x2,y2):Same as ai
+    :param bi:Same as ai
     :return:area:the area where two rectangles intersect.
     '''
+    ai_check = check_rectangle(ai)
+    bi_check = check_rectangle(bi)
+    if ai_check == False or bi_check == False:
+        raise ('Error:The coordinates of the upper left point are '
+               'not less than the coordinates of the lower right point')
     x = max(ai[0], bi[0])
     y = max(ai[1], bi[1])
     w = min(ai[2], bi[2]) - x
@@ -45,3 +55,15 @@ def intersection(ai, bi):
     area = w * h
     return area
 
+
+def iou(a, b):
+    '''
+    Find the cross ratio of two rectangles.
+    :param a:(x1,y1,x2,y2):(x1,y1)is top_left_point,(x2,y2)is right_lower_point.
+    :param b:Same as a.
+    :return:cross ratio of two rectangles.
+    '''
+    area_i = intersection(a, b)
+    area_u = union(a, b, area_i)
+    ratio = float(area_i) / float(area_u + 1e-6)
+    return ratio
