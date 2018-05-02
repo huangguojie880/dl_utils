@@ -1,16 +1,16 @@
 import xml.etree.ElementTree as ET
 
-def check_box(rectangular_coordinates):
+def check_box(box_coordinates):
     '''
     Check if the input box coordinates are legal
     :param Rectangular_coordinates:(x1,y1,x2,y2) where x1,y1 are the coordinates of the top-left point,
     and x2,y2 are the coordinates of the bottom-right point
     :return: False is illegal,True is legal
     '''
-    x1 = rectangular_coordinates[0]
-    y1 = rectangular_coordinates[1]
-    x2 = rectangular_coordinates[0]
-    y2 = rectangular_coordinates[1]
+    x1 = box_coordinates[0]
+    y1 = box_coordinates[1]
+    x2 = box_coordinates[0]
+    y2 = box_coordinates[1]
     if x1 >= x2 or y1 >= y2:
         return False
     else:
@@ -87,6 +87,10 @@ def all_boxes(annot_path):
         y1 = int(round(float(obj_bbox.find('ymin').text)))
         x2 = int(round(float(obj_bbox.find('xmax').text)))
         y2 = int(round(float(obj_bbox.find('ymax').text)))
+        flag = check_box([x1,y1,x2,y2])
+        if flag == False:
+            raise ('Error:The coordinates of the upper left point are '
+                   'not less than the coordinates of the lower right point')
         boxes.append([x1,y1,x2,y2])
     return boxes
 
