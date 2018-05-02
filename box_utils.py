@@ -9,8 +9,8 @@ def check_box(box_coordinates):
     '''
     x1 = box_coordinates[0]
     y1 = box_coordinates[1]
-    x2 = box_coordinates[0]
-    y2 = box_coordinates[1]
+    x2 = box_coordinates[2]
+    y2 = box_coordinates[3]
     if x1 >= x2 or y1 >= y2:
         return False
     else:
