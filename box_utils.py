@@ -1,3 +1,5 @@
+import xml.etree.ElementTree as ET
+
 def check_box(rectangular_coordinates):
     '''
     Check if the input box coordinates are legal
@@ -67,3 +69,44 @@ def iou(a, b):
     area_u = union(a, b, area_i)
     ratio = float(area_i) / float(area_u + 1e-6)
     return ratio
+
+def all_boxes(annot_path):
+    '''
+    The xml format is the same as pascal_voc.
+    Get all boxes under the xml file.
+    :param annot_path: Xml path
+    :return boxes:all boxes under the xml file.
+    '''
+    et = ET.parse(annot_path)
+    element = et.getroot()
+    element_objs = element.findall('object')
+    boxes = []
+    for element_obj in element_objs:
+        obj_bbox = element_obj.find('bndbox')
+        x1 = int(round(float(obj_bbox.find('xmin').text)))
+        y1 = int(round(float(obj_bbox.find('ymin').text)))
+        x2 = int(round(float(obj_bbox.find('xmax').text)))
+        y2 = int(round(float(obj_bbox.find('ymax').text)))
+        boxes.append([x1,y1,x2,y2])
+    return boxes
+
+def max_iou(box,all_boxes):
+    '''
+    The maximum ratio of a given box to target boxes.
+    The box format is:(x1,y1,x2,y2)
+    :param box:given box
+    :param all_boxes:target boxes
+    :return:iou_num_max:maximum ratio
+              iou_num_max_box:Corresponding box
+    '''
+    iou_num_max = 0
+    iou_num_max_box = [0, 0, 0, 0]
+    for one_box in all_boxes:
+        iou_num = iou(box,one_box)
+        if iou_num>iou_num_max:
+            iou_num_max = iou_num
+            iou_num_max_box[0] = one_box[0]
+            iou_num_max_box[1] = one_box[1]
+            iou_num_max_box[2] = one_box[2]
+            iou_num_max_box[3] = one_box[3]
+    return iou_num_max,iou_num_max_box
