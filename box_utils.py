@@ -2,10 +2,10 @@ import xml.etree.ElementTree as ET
 
 def check_box(box_coordinates):
     '''
-    Check if the input box coordinates are legal
+    Check if the input box coordinates are legal.
     :param Rectangular_coordinates:(x1,y1,x2,y2) where x1,y1 are the coordinates of the top-left point,
-    and x2,y2 are the coordinates of the bottom-right point
-    :return: False is illegal,True is legal
+    and x2,y2 are the coordinates of the bottom-right point.
+    :return: False is illegal,True is legal.
     '''
     x1 = box_coordinates[0]
     y1 = box_coordinates[1]
@@ -18,11 +18,11 @@ def check_box(box_coordinates):
 
 def union(au, bu, area_intersection):
     '''
-    Find the area of two rectangular phases
-    :param au:(x1,y1,x2,y2):(x1,y1)is top_left_point,(x2,y2)is right_lower_point
-    :param bu:same as au
+    Find the area of two rectangular phases.
+    :param au:(x1,y1,x2,y2):(x1,y1)is top_left_point,(x2,y2)is right_lower_point.
+    :param bu:same as au.
     :param area_intersection:the area where two boxes intersect.
-    :return:area_union:area of two rectangular phases
+    :return:area_union:area of two rectangular phases.
     '''
     au_check = check_box(au)
     bu_check = check_box(bu)
@@ -39,8 +39,8 @@ def intersection(ai, bi):
     '''
     Find the area where two boxes intersect.
     Horizontal x axis and vertical y axis.
-    :param ai:(x1,y1,x2,y2):(x1,y1)is top_left_point,(x2,y2)is right_lower_point
-    :param bi:Same as ai
+    :param ai:(x1,y1,x2,y2):(x1,y1)is top_left_point,(x2,y2)is right_lower_point.
+    :param bi:Same as ai.
     :return:area:the area where two boxes intersect.
     '''
     ai_check = check_box(ai)
@@ -74,7 +74,7 @@ def all_boxes(annot_path):
     '''
     The xml format is the same as pascal_voc.
     Get all boxes under the xml file.
-    :param annot_path: Xml path
+    :param annot_path: Xml path.
     :return boxes:all boxes under the xml file.
     '''
     et = ET.parse(annot_path)
@@ -97,11 +97,11 @@ def all_boxes(annot_path):
 def max_iou(box,all_boxes):
     '''
     The maximum ratio of a given box to target boxes.
-    The box format is:(x1,y1,x2,y2)
-    :param box:given box
-    :param all_boxes:target boxes
-    :return:iou_num_max:maximum ratio
-              iou_num_max_box:Corresponding box
+    The box format is:(x1,y1,x2,y2).
+    :param box:given box.
+    :param all_boxes:target boxes.
+    :return:iou_num_max:maximum ratio.
+              iou_num_max_box:Corresponding box.
     '''
     iou_num_max = 0
     iou_num_max_box = [0, 0, 0, 0]
