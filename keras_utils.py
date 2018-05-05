@@ -1,6 +1,5 @@
 import keras.backend as K
 import tensorflow as tf
-
 '''
 Introduce:Show training status
 Examole:
@@ -17,3 +16,4 @@ def focal_mse(r = 1):
     '''
     def mse(y_true, y_pred):
         return K.mean((tf.abs(y_true - y_pred)**r)*tf.losses.sigmoid_cross_entropy( y_pred,y_true))
+    return mse
