@@ -1,10 +1,19 @@
 import xml.dom.minidom
 
 def create_xml(filename,img_width,img_height,boxes,save_path):
+    '''
+    Record the information of a picture and the box information it contains in the xml file
+    :param filename:input image name
+    :param img_width: input image width
+    :param img_height: input image height
+    :param boxes:Boxes is a list, a record is a dict containing xmin, ymin, xmax, ymax four keywords
+    (xmin, ymin: coordinates of the upper-left point, xmax, ymax: coordinates of the lower-right point)
+    :param save_path: Should include the file name
+    :return:None
+    '''
     doc = xml.dom.minidom.Document()
     root = doc.createElement('annotation')
     doc.appendChild(root)
-
     nodeSize = doc.createElement('size')
     nodeWidth = doc.createElement('width')
     nodeWidth.appendChild(doc.createTextNode(str(img_width)))
@@ -14,18 +23,14 @@ def create_xml(filename,img_width,img_height,boxes,save_path):
     nodeSize.appendChild(nodeHeight)
     nodeFilename = doc.createElement('filename')
     nodeFilename.appendChild(doc.createTextNode(filename))
-
     root.appendChild(nodeFilename)
     root.appendChild(nodeSize)
-
-
     for box in boxes:
         nodeObject = doc.createElement('object')
         nodeName = doc.createElement('name')
         nodeName.appendChild(doc.createTextNode('car'))
         nodeDifficult = doc.createElement('difficult')
         nodeDifficult.appendChild(doc.createTextNode('0'))
-
         nodeBndbox = doc.createElement('bndbox')
         nodeXmin = doc.createElement('xmin')
         nodeXmin.appendChild(doc.createTextNode(str(box['xmin'])))
@@ -43,7 +48,5 @@ def create_xml(filename,img_width,img_height,boxes,save_path):
         nodeObject.appendChild(nodeName)
         nodeObject.appendChild(nodeBndbox)
         root.appendChild(nodeObject)
-
-    #开始写xml文档
     fp = open(save_path, 'w')
     doc.writexml(fp, indent='\t', addindent='\t', newl='\n', encoding="utf-8")
