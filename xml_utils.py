@@ -1,6 +1,6 @@
 import xml.dom.minidom
 
-def create_xml(filename,img_width,img_height,boxes,save_path):
+def img_info_xml(filename,img_width,img_height,boxes,save_path):
     '''
     Record the information of a picture and the box information it contains in the xml file
     :param filename:input image name
