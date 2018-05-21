@@ -199,7 +199,7 @@ def get_pointBoxPlk(path, save_path):
         save_plk(img_box, one_save_path)
 
 
-def get_regr_data(point, box,slenI):
+def get_regr_data(point, box,slenI=64):
     '''
     :param point: 中心点在原图上对应的坐标（x,y）
     :param box: 中心点属于哪一个框(x1,y1,x2,y2),框的中心点：cx = 0.5*(x1+x2),cy = 0.5*(y1+y2)
@@ -241,7 +241,7 @@ def get_sumPoint(img):
     return num
 
 
-def getRate_array(img, slenI):
+def getRate_array(img, slenI=64):
     '''
     将img切成边长为slenI的小方块，得到每一个小方块中非0值占的比例的array
     :param img:
@@ -261,7 +261,7 @@ def getRate_array(img, slenI):
     return out_data
 
 
-def get_imgBoxClassPlk(path, save_path, ilenI, slenI, classesI):
+def get_trainPointClassPlk(path, save_path, ilenI=512, slenI=64, classesI=21):
     '''
     将img切成边长为slenI的小方块，得到每一个小方块属于哪一类
     :param path: classseg所在的路径
