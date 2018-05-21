@@ -164,8 +164,9 @@ def get_pointBox(img,img_box,box):
                 img_box[i, j, 3] = box[3]
     return img_box
 
-def get_plk(path,save_path):
+def get_pointBoxPlk(path,save_path):
     '''
+    得到包含改点的box属性
     :param path: objectseg所在的路径
     :param save_path:保存plk的路径:
     :return: None
@@ -211,3 +212,66 @@ def get_regr_data(point,box):
     b1 = (np.abs(x - cx) + blen)/(x2 - x1)
     b2 = (np.abs(y - cy) + blen)/(y2 - y1)
     return (a1,a2,b1,b2)
+
+def get_sumPoint(img):
+    '''
+    得到该图像内非0像素点的个数
+    :param img:
+    :return:
+    '''
+    img_shape = img.shape
+    num = 0
+    for i in range(int(img_shape[0])):
+        for j in range(int(img_shape[1])):
+            if img[i,j] != 0:
+                num += 1
+    return num
+    
+
+def getRate_array(img,slenI):
+    '''
+    将img切成边长为slenI的小方块，得到每一个小方块中非0值占的比例的array
+    :param img:
+    :param slenI:
+    :return: shape为[int(img_shape[0]/slenI),int(img_shape[1]/slenI)]
+    '''
+    img_shape = img.shape
+    outData_row = int(img_shape[0]/slenI)
+    outData_col = int(img_shape[1]/slenI)
+    out_data = np.zeros(shape=(outData_row,outData_col))
+    for i in range(outData_row):
+        for j in range(outData_col):
+            temp = img[i*slenI:(i+1)*slenI,j*slenI:(j+1)*slenI]
+            num = get_sumPoint(temp)
+            rate = num/(slenI*slenI)
+            out_data[i,j] = rate
+    return out_data
+
+def get_imgBoxClassPlk(path,save_path,ilenI,slenI,classesI):
+    '''
+    将img切成边长为slenI的小方块，得到每一个小方块属于哪一类
+    :param path: classseg所在的路径
+    :param save_path:保存plk的路径:
+    return: shape为[ilenI/slenI,ilenI/slenI,classesI]
+    '''
+
+    for name in os.listdir(path):
+        print(name)
+        file = os.path.join(path,name)
+        img = Image.open(file)
+        label  = img.convert('P')
+        label = np.array(label)
+        label[label == 255] = 0
+        label = to_categorical(label,classesI)
+        label = sv2.resize_image_with_crop_or_pad(label,(ilenI,ilenI))
+        label_shape = label.shape
+        outData_row = int(label_shape[0] / slenI)
+        outData_col = int(label_shape[1] / slenI)
+        img_rateArray = np.zeros(shape=(outData_row,outData_col,classesI))
+        for i in range(1,label.shape[2]):
+            temp = label[:,:,i]
+            img_rateArray[:,:,i] = getRate_array(temp, slenI)
+        img_class = np.argmax(img_rateArray,axis=-1)
+        img_class = to_categorical(img_class,classesI)
+        one_save_path = save_path + '/' + name.split('.')[0] + '.plk'
+        save_plk(img_class, one_save_path)
