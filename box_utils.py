@@ -185,3 +185,29 @@ def get_plk(path,save_path):
             img_box = get_pointBox(temp,img_box,box)
         one_save_path = save_path + '/' + name.split('.')[0] + '.plk'
         save_plk(img_box,one_save_path)
+        
+def get_regr_data(point,box):
+    '''
+    :param point: 中心点在原图上对应的坐标（x,y）
+    :param box: 中心点属于哪一个框(x1,y1,x2,y2),框的中心点：cx = 0.5*(x1+x2),cy = 0.5*(y1+y2)
+    :return: 中心点的回归梯度(a1,a2,b1,b2)
+    a1,a2是中心点位置回归
+    a1 = （x - cx）/slen
+    a2 = (y - cy) /slen
+    b1,b2是边框长度回归
+    b1 = (|x - cx| + blen)/(x2 - x1)
+    b2 = (|y - cy| + blen)/(y2 - y1)
+    '''
+    x = point[0]
+    y = point[1]
+    x1 = box[0]
+    y1 = box[1]
+    x2 = box[2]
+    y2 = box[3]
+    cx = (x1 + x2)/2
+    cy = (y1 + y2)/2
+    a1 = (x - cx)/slen
+    a2 = (y - cy) /slen
+    b1 = (np.abs(x - cx) + blen)/(x2 - x1)
+    b2 = (np.abs(y - cy) + blen)/(y2 - y1)
+    return (a1,a2,b1,b2)
