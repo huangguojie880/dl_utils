@@ -3,8 +3,9 @@ from keras.utils import to_categorical
 import os
 from PIL import Image
 import numpy as np
-
+import simplecv2 as sv2
 import pickle
+
 
 def save_plk(plk, save_path):
     '''
@@ -15,6 +16,7 @@ def save_plk(plk, save_path):
     '''
     with open(save_path, 'wb') as plk_f:
         pickle.dump(plk, plk_f)
+
 
 def check_box(box_coordinates):
     '''
@@ -32,6 +34,7 @@ def check_box(box_coordinates):
     else:
         return True
 
+
 def union(au, bu, area_intersection):
     '''
     Find the area of two rectangular phases
@@ -43,7 +46,8 @@ def union(au, bu, area_intersection):
     au_check = check_box(au)
     bu_check = check_box(bu)
     if au_check == False or bu_check == False:
-        raise ('Error:The coordinates of the upper left point are not less than the coordinates of the lower right point')
+        raise (
+        'Error:The coordinates of the upper left point are not less than the coordinates of the lower right point')
     area_a = (au[2] - au[0]) * (au[3] - au[1])
     area_b = (bu[2] - bu[0]) * (bu[3] - bu[1])
     area_union = area_a + area_b - area_intersection
@@ -61,7 +65,8 @@ def intersection(ai, bi):
     ai_check = check_box(ai)
     bi_check = check_box(bi)
     if ai_check == False or bi_check == False:
-        raise ('Error:The coordinates of the upper left point are not less than the coordinates of the lower right point')
+        raise (
+        'Error:The coordinates of the upper left point are not less than the coordinates of the lower right point')
     x = max(ai[0], bi[0])
     y = max(ai[1], bi[1])
     w = min(ai[2], bi[2]) - x
@@ -84,6 +89,7 @@ def iou(a, b):
     ratio = float(area_i) / float(area_u + 1e-6)
     return ratio
 
+
 def all_boxes(annot_path):
     '''
     The xml format is the same as pascal_voc.
@@ -101,13 +107,15 @@ def all_boxes(annot_path):
         y1 = int(round(float(obj_bbox.find('ymin').text)))
         x2 = int(round(float(obj_bbox.find('xmax').text)))
         y2 = int(round(float(obj_bbox.find('ymax').text)))
-        flag = check_box([x1,y1,x2,y2])
+        flag = check_box([x1, y1, x2, y2])
         if flag == False:
-            raise ('Error:The coordinates of the upper left point are not less than the coordinates of the lower right point')
-        boxes.append([x1,y1,x2,y2])
+            raise (
+            'Error:The coordinates of the upper left point are not less than the coordinates of the lower right point')
+        boxes.append([x1, y1, x2, y2])
     return boxes
 
-def max_iou(box,all_boxes):
+
+def max_iou(box, all_boxes):
     '''
     The maximum ratio of a given box to target boxes.
     The box format is:(x1,y1,x2,y2)
@@ -119,14 +127,15 @@ def max_iou(box,all_boxes):
     iou_num_max = 0
     iou_num_max_box = [0, 0, 0, 0]
     for one_box in all_boxes:
-        iou_num = iou(box,one_box)
-        if iou_num>iou_num_max:
+        iou_num = iou(box, one_box)
+        if iou_num > iou_num_max:
             iou_num_max = iou_num
             iou_num_max_box[0] = one_box[0]
             iou_num_max_box[1] = one_box[1]
             iou_num_max_box[2] = one_box[2]
             iou_num_max_box[3] = one_box[3]
-    return iou_num_max,iou_num_max_box
+    return iou_num_max, iou_num_max_box
+
 
 def get_box(img):
     '''
@@ -138,16 +147,17 @@ def get_box(img):
     y = []
     for i in range(img.shape[0]):
         for j in range(img.shape[1]):
-            if img[i,j] != 0:
+            if img[i, j] != 0:
                 x.append(j)
                 y.append(i)
     x1 = min(x)
     x2 = max(x)
     y1 = min(y)
     y2 = max(y)
-    return [x1,y1,x2,y2]
+    return [x1, y1, x2, y2]
 
-def get_pointBox(img,img_box,box):
+
+def get_pointBox(img, img_box, box):
     '''
     得到每一个点对应的box
     :param img: 二值图片
@@ -157,14 +167,15 @@ def get_pointBox(img,img_box,box):
     '''
     for i in range(img.shape[0]):
         for j in range(img.shape[1]):
-            if img[i,j] != 0:
+            if img[i, j] != 0:
                 img_box[i, j, 0] = box[0]
                 img_box[i, j, 1] = box[1]
                 img_box[i, j, 2] = box[2]
                 img_box[i, j, 3] = box[3]
     return img_box
 
-def get_pointBoxPlk(path,save_path):
+
+def get_pointBoxPlk(path, save_path):
     '''
     得到包含改点的box属性
     :param path: objectseg所在的路径
@@ -173,21 +184,22 @@ def get_pointBoxPlk(path,save_path):
     '''
 
     for name in os.listdir(path):
-        file = os.path.join(path,name)
+        file = os.path.join(path, name)
         img = Image.open(file)
-        label  = img.convert('P')
+        label = img.convert('P')
         label = np.array(label)
         label[label == 255] = 0
         label = to_categorical(label)
-        img_box =  np.zeros(shape=(label.shape[0],label.shape[1],4))
-        for i in range(1,label.shape[2]):
-            temp = label[:,:,i]
+        img_box = np.zeros(shape=(label.shape[0], label.shape[1], 4))
+        for i in range(1, label.shape[2]):
+            temp = label[:, :, i]
             box = get_box(temp)
-            img_box = get_pointBox(temp,img_box,box)
+            img_box = get_pointBox(temp, img_box, box)
         one_save_path = save_path + '/' + name.split('.')[0] + '.plk'
-        save_plk(img_box,one_save_path)
-        
-def get_regr_data(point,box):
+        save_plk(img_box, one_save_path)
+
+
+def get_regr_data(point, box,slenI):
     '''
     :param point: 中心点在原图上对应的坐标（x,y）
     :param box: 中心点属于哪一个框(x1,y1,x2,y2),框的中心点：cx = 0.5*(x1+x2),cy = 0.5*(y1+y2)
@@ -205,13 +217,14 @@ def get_regr_data(point,box):
     y1 = box[1]
     x2 = box[2]
     y2 = box[3]
-    cx = (x1 + x2)/2
-    cy = (y1 + y2)/2
-    a1 = (x - cx)/slen
-    a2 = (y - cy) /slen
-    b1 = (np.abs(x - cx) + blen)/(x2 - x1)
-    b2 = (np.abs(y - cy) + blen)/(y2 - y1)
-    return (a1,a2,b1,b2)
+    cx = (x1 + x2) / 2
+    cy = (y1 + y2) / 2
+    a1 = (x - cx) / slenI
+    a2 = (y - cy) / slenI
+    b1 = (np.abs(x - cx) + slenI) / (x2 - x1)
+    b2 = (np.abs(y - cy) + slenI) / (y2 - y1)
+    return (a1, a2, b1, b2)
+
 
 def get_sumPoint(img):
     '''
@@ -223,12 +236,12 @@ def get_sumPoint(img):
     num = 0
     for i in range(int(img_shape[0])):
         for j in range(int(img_shape[1])):
-            if img[i,j] != 0:
+            if img[i, j] != 0:
                 num += 1
     return num
-    
 
-def getRate_array(img,slenI):
+
+def getRate_array(img, slenI):
     '''
     将img切成边长为slenI的小方块，得到每一个小方块中非0值占的比例的array
     :param img:
@@ -236,18 +249,19 @@ def getRate_array(img,slenI):
     :return: shape为[int(img_shape[0]/slenI),int(img_shape[1]/slenI)]
     '''
     img_shape = img.shape
-    outData_row = int(img_shape[0]/slenI)
-    outData_col = int(img_shape[1]/slenI)
-    out_data = np.zeros(shape=(outData_row,outData_col))
+    outData_row = int(img_shape[0] / slenI)
+    outData_col = int(img_shape[1] / slenI)
+    out_data = np.zeros(shape=(outData_row, outData_col))
     for i in range(outData_row):
         for j in range(outData_col):
-            temp = img[i*slenI:(i+1)*slenI,j*slenI:(j+1)*slenI]
+            temp = img[i * slenI:(i + 1) * slenI, j * slenI:(j + 1) * slenI]
             num = get_sumPoint(temp)
-            rate = num/(slenI*slenI)
-            out_data[i,j] = rate
+            rate = num / (slenI * slenI)
+            out_data[i, j] = rate
     return out_data
 
-def get_imgBoxClassPlk(path,save_path,ilenI,slenI,classesI):
+
+def get_imgBoxClassPlk(path, save_path, ilenI, slenI, classesI):
     '''
     将img切成边长为slenI的小方块，得到每一个小方块属于哪一类
     :param path: classseg所在的路径
@@ -257,21 +271,21 @@ def get_imgBoxClassPlk(path,save_path,ilenI,slenI,classesI):
 
     for name in os.listdir(path):
         print(name)
-        file = os.path.join(path,name)
+        file = os.path.join(path, name)
         img = Image.open(file)
-        label  = img.convert('P')
+        label = img.convert('P')
         label = np.array(label)
         label[label == 255] = 0
-        label = to_categorical(label,classesI)
-        label = sv2.resize_image_with_crop_or_pad(label,(ilenI,ilenI))
+        label = to_categorical(label, classesI)
+        label = sv2.resize_image_with_crop_or_pad(label, (ilenI, ilenI))
         label_shape = label.shape
         outData_row = int(label_shape[0] / slenI)
         outData_col = int(label_shape[1] / slenI)
-        img_rateArray = np.zeros(shape=(outData_row,outData_col,classesI))
-        for i in range(1,label.shape[2]):
-            temp = label[:,:,i]
-            img_rateArray[:,:,i] = getRate_array(temp, slenI)
-        img_class = np.argmax(img_rateArray,axis=-1)
-        img_class = to_categorical(img_class,classesI)
+        img_rateArray = np.zeros(shape=(outData_row, outData_col, classesI))
+        for i in range(1, label.shape[2]):
+            temp = label[:, :, i]
+            img_rateArray[:, :, i] = getRate_array(temp, slenI)
+        img_class = np.argmax(img_rateArray, axis=-1)
+        img_class = to_categorical(img_class, classesI)
         one_save_path = save_path + '/' + name.split('.')[0] + '.plk'
         save_plk(img_class, one_save_path)
