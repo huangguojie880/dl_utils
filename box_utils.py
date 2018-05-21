@@ -111,3 +111,61 @@ def max_iou(box,all_boxes):
             iou_num_max_box[2] = one_box[2]
             iou_num_max_box[3] = one_box[3]
     return iou_num_max,iou_num_max_box
+
+def get_box(img):
+    '''
+    二值图像，得到包含物体的框
+    :param img: 
+    :return: 
+    '''
+    x = []
+    y = []
+    for i in range(img.shape[0]):
+        for j in range(img.shape[1]):
+            if img[i,j] != 0:
+                x.append(j)
+                y.append(i)
+    x1 = min(x)
+    x2 = max(x)
+    y1 = min(y)
+    y2 = max(y)
+    return [x1,y1,x2,y2]
+
+def get_pointBox(img,img_box,box):
+    '''
+    得到每一个点对应的box
+    :param img: 二值图片
+    :param img_box: 存储点属性的数组
+    :param box: 所有点属于哪个box
+    :return: 
+    '''
+    for i in range(img.shape[0]):
+        for j in range(img.shape[1]):
+            if img[i,j] != 0:
+                img_box[i, j, 0] = box[0]
+                img_box[i, j, 1] = box[1]
+                img_box[i, j, 2] = box[2]
+                img_box[i, j, 3] = box[3]
+    return img_box
+
+def get_plk(path,save_path):
+    '''
+    :param path: objectseg所在的路径
+    :param save_path:保存plk的路径: 
+    :return: None
+    '''
+
+    for name in os.listdir(path):
+        file = os.path.join(path,name)
+        img = Image.open(file)
+        label  = img.convert('P')
+        label = np.array(label)
+        label[label == 255] = 0
+        label = to_categorical(label)
+        img_box =  np.zeros(shape=(label.shape[0],label.shape[1],4))
+        for i in range(1,label.shape[2]):
+            temp = label[:,:,i]
+            box = get_box(temp)
+            img_box = get_pointBox(temp,img_box,box)
+        one_save_path = save_path + '/' + name.split('.')[0] + '.plk'
+        fu.save_plk(img_box,one_save_path)
