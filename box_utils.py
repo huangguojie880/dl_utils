@@ -1,4 +1,20 @@
 import xml.etree.ElementTree as ET
+from keras.utils import to_categorical
+import os
+from PIL import Image
+import numpy as np
+
+import pickle
+
+def save_plk(plk, save_path):
+    '''
+    Save python variables
+    :param plk:Need to save python variables
+    :param save_path: save path
+    :return: None
+    '''
+    with open(save_path, 'wb') as plk_f:
+        pickle.dump(plk, plk_f)
 
 def check_box(box_coordinates):
     '''
@@ -115,8 +131,8 @@ def max_iou(box,all_boxes):
 def get_box(img):
     '''
     二值图像，得到包含物体的框
-    :param img: 
-    :return: 
+    :param img:
+    :return:
     '''
     x = []
     y = []
@@ -137,7 +153,7 @@ def get_pointBox(img,img_box,box):
     :param img: 二值图片
     :param img_box: 存储点属性的数组
     :param box: 所有点属于哪个box
-    :return: 
+    :return:
     '''
     for i in range(img.shape[0]):
         for j in range(img.shape[1]):
@@ -151,7 +167,7 @@ def get_pointBox(img,img_box,box):
 def get_plk(path,save_path):
     '''
     :param path: objectseg所在的路径
-    :param save_path:保存plk的路径: 
+    :param save_path:保存plk的路径:
     :return: None
     '''
 
@@ -168,4 +184,4 @@ def get_plk(path,save_path):
             box = get_box(temp)
             img_box = get_pointBox(temp,img_box,box)
         one_save_path = save_path + '/' + name.split('.')[0] + '.plk'
-        fu.save_plk(img_box,one_save_path)
+        save_plk(img_box,one_save_path)
