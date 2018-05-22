@@ -353,7 +353,7 @@ def get_imgBoxRegrPlk(path, save_path, ilenI = 512, slenI = 64):
     for name in os.listdir(path):
         print(name)
         file = os.path.join(path, name)
-        img_pointBox = fu.load_plk(file)
+        img_pointBox = load_plk(file)
         img_pointBox = sv2.resize_image_with_crop_or_pad(img_pointBox, (ilenI, ilenI))
         outData_row = int(ilenI / slenI)
         outData_col = int(ilenI/ slenI)
@@ -362,9 +362,13 @@ def get_imgBoxRegrPlk(path, save_path, ilenI = 512, slenI = 64):
             for j in range(outData_col):
                 temp = img_pointBox[i * slenI:(i + 1) * slenI, j * slenI:(j + 1) * slenI,:]
                 box = get_maxNumBox(temp)
+                
                 ci = i * 64 + 32
                 cj = j * 64 + 32
-                regr = get_regr_data((ci,cj), box, slenI)
+                if sum(box) != 0:
+                    regr = get_regr_data((ci,cj), box, slenI)
+                else:
+                    regr = [0,0,0,0]
                 img_trainDataRegr[i,j,:] = regr
         one_save_path = save_path + '/' + name.split('.')[0] + '.plk'
-        fu.save_plk(img_trainDataRegr, one_save_path)
+        save_plk(img_trainDataRegr, one_save_path)
