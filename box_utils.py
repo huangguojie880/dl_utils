@@ -342,7 +342,7 @@ def get_maxNumBox(img_pointBox):
     return box
 
 
-def get_imgBoxRegrPlk(path, save_path, ilenI, slenI):
+def get_imgBoxRegrPlk(path, save_path, ilenI = 512, slenI = 64):
     '''
     将img切成边长为slenI的小方块，得到每一个小方块属于的regr
     :param path: classseg所在的路径
@@ -353,7 +353,7 @@ def get_imgBoxRegrPlk(path, save_path, ilenI, slenI):
     for name in os.listdir(path):
         print(name)
         file = os.path.join(path, name)
-        img_pointBox = load_plk(file)
+        img_pointBox = fu.load_plk(file)
         img_pointBox = sv2.resize_image_with_crop_or_pad(img_pointBox, (ilenI, ilenI))
         outData_row = int(ilenI / slenI)
         outData_col = int(ilenI/ slenI)
@@ -362,6 +362,9 @@ def get_imgBoxRegrPlk(path, save_path, ilenI, slenI):
             for j in range(outData_col):
                 temp = img_pointBox[i * slenI:(i + 1) * slenI, j * slenI:(j + 1) * slenI,:]
                 box = get_maxNumBox(temp)
-                img_trainDataRegr[i,j,:] = box
+                ci = i * 64 + 32
+                cj = j * 64 + 32
+                regr = get_regr_data((ci,cj), box, slenI)
+                img_trainDataRegr[i,j,:] = regr
         one_save_path = save_path + '/' + name.split('.')[0] + '.plk'
-        save_plk(img_trainDataRegr, one_save_path)
+        fu.save_plk(img_trainDataRegr, one_save_path)
