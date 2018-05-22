@@ -235,6 +235,30 @@ def get_regr_data(point, box,slenI=64):
     b2 = (np.abs(y - cy) + slenI) / (y2 - y1)
     return (a1, a2, b1, b2)
 
+def get_regr2box(point,regr,slenI=64):
+    '''
+
+    :param point: 中心点在原图上对应的坐标（x,y）
+    :param regr: get_regr_data定义的回归梯度
+    :return: box:在原图上的框
+    '''
+    x = point[0]
+    y = point[1]
+    a1 = regr[0]
+    a2 = regr[1]
+    b1 = regr[2]
+    b2 = regr[3]
+
+    cx = x - a1 * slenI
+    cy = y - a2 * slenI
+    w = (np.abs(x - cx) + slenI)/b1
+    h = (np.abs(y - cy) + slenI)/b2
+    x1 = cx - w/2
+    x2 = cx + w/2
+    y1 = cy - h/2
+    y2 = cy + h/2
+    return (x1,y1,x2,y2)
+
 
 def get_sumPoint(img):
     '''
