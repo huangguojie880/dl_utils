@@ -345,7 +345,7 @@ def get_maxNumBox(img_pointBox):
 def get_imgBoxRegrPlk(path, save_path, ilenI = 512, slenI = 64):
     '''
     将img切成边长为slenI的小方块，得到每一个小方块属于的regr
-    :param path: classseg所在的路径
+    :param path: classsegBox所在的路径
     :param save_path:保存plk的路径:
     return: shape为[ilenI/slenI,ilenI/slenI,classesI]
     '''
