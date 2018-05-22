@@ -5,7 +5,7 @@ from PIL import Image
 import numpy as np
 import simplecv2 as sv2
 import pickle
-
+from collections import Counter
 
 def save_plk(plk, save_path):
     '''
@@ -16,6 +16,16 @@ def save_plk(plk, save_path):
     '''
     with open(save_path, 'wb') as plk_f:
         pickle.dump(plk, plk_f)
+        
+def load_plk(load_path):
+    '''
+    Load python variables
+    :param load_path: load path
+    :return:python variables
+    '''
+    with open(load_path, 'rb') as plk_f:
+        plk = pickle.load(plk_f)
+    return plk
 
 
 def check_box(box_coordinates):
@@ -289,3 +299,69 @@ def get_trainPointClassPlk(path, save_path, ilenI=512, slenI=64, classesI=21):
         img_class = to_categorical(img_class, classesI)
         one_save_path = save_path + '/' + name.split('.')[0] + '.plk'
         save_plk(img_class, one_save_path)
+        
+def box2name(box):
+    '''
+    将box变成字符串类型，每一个坐标以"_'隔开
+    :param box:
+    :return:
+    '''
+    return str(box[0])+'_'+str(box[1])+'_'+str(box[2])+'_'+str(box[3])
+
+def name2box(name):
+    '''
+    将字符串类型的box，变为int类型的box
+    :param name:
+    :return:
+    '''
+    x1 = int(float(name.split('_')[0]))
+    y1 = int(float(name.split('_')[1]))
+    x2 = int(float(name.split('_')[2]))
+    y2 = int(float(name.split('_')[3]))
+    return [x1,y1,x2,y2]
+
+
+def get_maxNumBox(img_pointBox):
+    '''
+    得到img_pointBox里，最多的box坐标
+    :param img_pointBox:
+    :return:
+    '''
+    img_shape = img_pointBox.shape
+    boxes = []
+    for i in range(int(img_shape[0])):
+        for j in range(int(img_shape[1])):
+            if sum(img_pointBox[i, j,:]) != 0:
+                boxes.append(box2name(img_pointBox[i, j,:]))
+    if len(boxes) != 0:
+        boxes_count = Counter(boxes)
+        box = boxes_count.most_common(1)[0][0]
+        box = name2box(box)
+    else:
+        box = [0,0,0,0]
+    return box
+
+
+def get_imgBoxRegrPlk(path, save_path, ilenI, slenI):
+    '''
+    将img切成边长为slenI的小方块，得到每一个小方块属于的regr
+    :param path: classseg所在的路径
+    :param save_path:保存plk的路径:
+    return: shape为[ilenI/slenI,ilenI/slenI,classesI]
+    '''
+    
+    for name in os.listdir(path):
+        print(name)
+        file = os.path.join(path, name)
+        img_pointBox = load_plk(file)
+        img_pointBox = sv2.resize_image_with_crop_or_pad(img_pointBox, (ilenI, ilenI))
+        outData_row = int(ilenI / slenI)
+        outData_col = int(ilenI/ slenI)
+        img_trainDataRegr = np.zeros(shape=(outData_row, outData_col, 4))
+        for i in range(outData_row):
+            for j in range(outData_col):
+                temp = img_pointBox[i * slenI:(i + 1) * slenI, j * slenI:(j + 1) * slenI,:]
+                box = get_maxNumBox(temp)
+                img_trainDataRegr[i,j,:] = box
+        one_save_path = save_path + '/' + name.split('.')[0] + '.plk'
+        save_plk(img_trainDataRegr, one_save_path)
