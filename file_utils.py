@@ -1,26 +1,34 @@
 import pickle
 import os
 import glob
+import json
 
-def save_plk(plk, save_path):
+def save_plk(save_thing,save_path):
     '''
     Save python variables
-    :param plk:Need to save python variables
+    :param save_thing:Need to save python variables
     :param save_path: save path
-    :return: None
+    :return: 如果保存出错则返回错误原因，否则无返回值
     '''
-    with open(save_path, 'wb') as plk_f:
-        pickle.dump(plk, plk_f)
+    try:
+        with open(save_path, 'wb') as plk_f:
+            pickle.dump(save_thing, plk_f)
+        return None
+    except Exception as e:
+        return e
 
 def load_plk(load_path):
     '''
     Load python variables
     :param load_path: load path
-    :return:python variables
+    :return:python variables,出错则返回错误原因
     '''
-    with open(load_path, 'rb') as plk_f:
-        plk = pickle.load(plk_f)
-    return plk
+    try:
+        with open(load_path, 'rb') as plk_f:
+            plk = pickle.load(plk_f)
+        return plk
+    except Exception as e:
+        return e
 
 def get_filesList(generalTerm):
     '''
@@ -67,3 +75,17 @@ def file_lines_to_list(path):
         # remove whitespace characters like `\n` at the end of each line
         content = [x.strip() for x in content]
     return content
+
+def save_json(save_thing,save_path):
+    '''
+    将python对象保存为json文件
+    :param save_thing: 保存的python对象
+    :param save_path: 保存路径
+    :return: 如果保存出错则返回错误原因，否则无返回值
+    '''
+    try:
+        with open(save_path, 'w') as outfile:
+            json.dump(save_thing, outfile)
+            return None
+    except Exception as e:
+        return e
