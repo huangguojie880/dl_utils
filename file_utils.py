@@ -55,3 +55,15 @@ def path_check(path):
         if flag is False:
             os.mkdir(path_temp)
     return flag
+
+def file_lines_to_list(path):
+    '''
+    将文件里的每一行作为一条数据存储在list中
+    :param path:
+    :return:
+    '''
+    with open(path) as f:
+        content = f.readlines()
+        # remove whitespace characters like `\n` at the end of each line
+        content = [x.strip() for x in content]
+    return content
