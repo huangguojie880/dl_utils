@@ -1,5 +1,6 @@
 import pickle
 import os
+import glob
 
 def save_plk(plk, save_path):
     '''
@@ -21,7 +22,14 @@ def load_plk(load_path):
         plk = pickle.load(plk_f)
     return plk
 
-import os
+def get_filesList(generalTerm):
+    '''
+    得到一个路径下某一后缀名的所有文件路径
+    :param generalTerm: 列如'ground-truth/*.txt'
+    :return: 所有文件路径的list
+    '''
+    files_list = glob.glob(generalTerm)
+    return files_list
 
 def get_currentDir():
     '''
