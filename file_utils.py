@@ -3,6 +3,52 @@ import os
 import glob
 import json
 
+def load_file_list(path=None, printable=True):
+    r"""
+    Parameters
+    ----------
+    path : str or None
+        A folder path, if `None`, use the current directory.
+    printable : boolean
+        Whether to print the files infomation.
+    Examples
+    ----------
+    """
+    if path is None:
+        path = os.getcwd()
+    file_list = os.listdir(path)
+    file_list.sort()
+    if printable:
+        print('Match file list = %s' % file_list)
+        print('Number of files = %d' % len(file_list))
+    return file_list
+
+def read_images(img_list, path='', printable=True):
+    """Returns all images in list by given path and name of each image file.
+    Parameters
+    -------------
+    img_list : list of str
+        The image file names.
+    path : str
+        The image folder path.
+    printable : boolean
+        Whether to print information when reading images.
+    Returns
+    -------
+    list of numpy.array
+        The images.
+    """
+    imgs = []
+    for img_name in img_list:
+        img_path = os.path.join(path,img_name)
+        img = load_img(img_path)
+        img = img_to_array(img)
+        imgs.append(img)
+    if printable == True:
+        print('read %d from %s' % (len(imgs), path))
+    return imgs
+
+
 def exists_or_mkdir(path, verbose=True):
     """Check a folder by given name, if not exist, create the folder and return False,
     if directory exists, return True.
